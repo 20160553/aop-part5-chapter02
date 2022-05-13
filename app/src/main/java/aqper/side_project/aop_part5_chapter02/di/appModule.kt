@@ -7,10 +7,20 @@ import aqper.side_project.aop_part5_chapter02.data.network.provideProductRetrofi
 import aqper.side_project.aop_part5_chapter02.data.repository.DefaultProductRepository
 import aqper.side_project.aop_part5_chapter02.data.repository.ProductRepository
 import aqper.side_project.aop_part5_chapter02.domain.GetProductItemUseCase
+import aqper.side_project.aop_part5_chapter02.presentation.BaseViewModel
+import aqper.side_project.aop_part5_chapter02.presentation.list.ProductListViewModel
+import aqper.side_project.aop_part5_chapter02.presentation.main.MainViewModel
+import aqper.side_project.aop_part5_chapter02.presentation.profile.ProfileViewModel
 import kotlinx.coroutines.Dispatchers
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
+
+    //ViewModels
+    viewModel { MainViewModel() }
+    viewModel { ProfileViewModel() }
+    viewModel { ProductListViewModel() }
 
     //Coroutines Dispatcher
     single { Dispatchers.Main }
