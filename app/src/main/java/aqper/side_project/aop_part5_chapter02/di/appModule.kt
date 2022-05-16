@@ -7,6 +7,7 @@ import aqper.side_project.aop_part5_chapter02.data.network.provideProductRetrofi
 import aqper.side_project.aop_part5_chapter02.data.repository.DefaultProductRepository
 import aqper.side_project.aop_part5_chapter02.data.repository.ProductRepository
 import aqper.side_project.aop_part5_chapter02.domain.GetProductItemUseCase
+import aqper.side_project.aop_part5_chapter02.domain.GetProductListUseCase
 import aqper.side_project.aop_part5_chapter02.presentation.BaseViewModel
 import aqper.side_project.aop_part5_chapter02.presentation.list.ProductListViewModel
 import aqper.side_project.aop_part5_chapter02.presentation.main.MainViewModel
@@ -20,7 +21,7 @@ val appModule = module {
     //ViewModels
     viewModel { MainViewModel() }
     viewModel { ProfileViewModel() }
-    viewModel { ProductListViewModel() }
+    viewModel { ProductListViewModel(get()) }
 
     //Coroutines Dispatcher
     single { Dispatchers.Main }
@@ -28,6 +29,7 @@ val appModule = module {
 
     //UseCase
     factory { GetProductItemUseCase(get()) }
+    factory { GetProductListUseCase(get()) }
 
     //Repositories
     single<ProductRepository> { DefaultProductRepository(get(), get()) }
