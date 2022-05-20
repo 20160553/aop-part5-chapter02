@@ -9,6 +9,9 @@ import aqper.side_project.aop_part5_chapter02.data.network.provideProductRetrofi
 import aqper.side_project.aop_part5_chapter02.data.preference.PreferenceManager
 import aqper.side_project.aop_part5_chapter02.data.repository.DefaultProductRepository
 import aqper.side_project.aop_part5_chapter02.data.repository.ProductRepository
+import aqper.side_project.aop_part5_chapter02.domain.*
+import aqper.side_project.aop_part5_chapter02.domain.DeleteOrderedProductListUseCase
+import aqper.side_project.aop_part5_chapter02.domain.GetOrderedProductListUseCase
 import aqper.side_project.aop_part5_chapter02.domain.GetProductItemUseCase
 import aqper.side_project.aop_part5_chapter02.domain.GetProductListUseCase
 import aqper.side_project.aop_part5_chapter02.domain.OrderProductItemUseCase
@@ -26,7 +29,7 @@ val appModule = module {
 
     //ViewModels
     viewModel { MainViewModel() }
-    viewModel { ProfileViewModel(get()) }
+    viewModel { ProfileViewModel(get(), get(), get()) }
     viewModel { ProductListViewModel(get()) }
     viewModel { (productId: Long) -> ProductDetailViewModel(productId, get(), get()) }
 
@@ -39,6 +42,8 @@ val appModule = module {
     factory { GetProductItemUseCase(get()) }
     factory { GetProductListUseCase(get()) }
     factory { OrderProductItemUseCase(get()) }
+    factory { GetOrderedProductListUseCase(get()) }
+    factory { DeleteOrderedProductListUseCase(get()) }
 
     //Repositories
     single<ProductRepository> { DefaultProductRepository(get(), get(), get()) }

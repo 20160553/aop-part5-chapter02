@@ -10,6 +10,7 @@ import aqper.side_project.aop_part5_chapter02.databinding.FragmentProfileBinding
 import aqper.side_project.aop_part5_chapter02.extensions.loadCenterCrop
 import aqper.side_project.aop_part5_chapter02.extensions.toast
 import aqper.side_project.aop_part5_chapter02.presentation.BaseFragment
+import aqper.side_project.aop_part5_chapter02.presentation.adapter.ProductListAdapter
 import aqper.side_project.aop_part5_chapter02.presentation.detail.ProductDetailActivity
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -53,6 +54,8 @@ internal class ProfileFragment() : BaseFragment<ProfileViewModel, FragmentProfil
             }
         }
 
+    private val adapter = ProductListAdapter()
+
     override fun observeData() = viewModel.profileStateLiveData.observe(this) {
         when (it) {
             is ProfileState.UnInitialized -> initViews()
@@ -64,11 +67,12 @@ internal class ProfileFragment() : BaseFragment<ProfileViewModel, FragmentProfil
     }
 
     private fun initViews() = with(binding) {
+        recyclerView.adapter = adapter
         loginButton.setOnClickListener {
             signInGoogle()
         }
         logoutButton.setOnClickListener {
-
+            viewModel.signOut()
         }
     }
 
@@ -78,6 +82,7 @@ internal class ProfileFragment() : BaseFragment<ProfileViewModel, FragmentProfil
     }
 
     private fun handleLoginState(state: ProfileState.Login) = with(binding) {
+        binding.progressBar.isVisible = true
         val credential = GoogleAuthProvider.getCredential(state.idToken, null)
         firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener(requireActivity()) { task ->
@@ -115,11 +120,11 @@ internal class ProfileFragment() : BaseFragment<ProfileViewModel, FragmentProfil
         } else {
             emptyResultTextView.isGone = true
             recyclerView.isGone = false
-//            adapter.setProductList(state.productList) {
-//                startActivity(
-//                    ProductDetailActivity.newIntent(requireContext(), it.id)
-//                )
-//            }
+            adapter.setProductList(state.productList) {
+                startActivity(
+                    ProductDetailActivity.newIntent(requireContext(), it.id)
+                )
+            }
         }
     }
 

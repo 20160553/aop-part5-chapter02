@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import aqper.side_project.aop_part5_chapter02.R
 import aqper.side_project.aop_part5_chapter02.databinding.ActivityMainBinding
 import aqper.side_project.aop_part5_chapter02.presentation.BaseActivity
+import aqper.side_project.aop_part5_chapter02.presentation.BaseFragment
 import aqper.side_project.aop_part5_chapter02.presentation.list.ProductListFragment
 import aqper.side_project.aop_part5_chapter02.presentation.list.ProductListViewModel
 import aqper.side_project.aop_part5_chapter02.presentation.profile.ProfileFragment
@@ -65,7 +66,7 @@ internal class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>()
             is MainState.RefreshOrderList -> {
                 binding.bottomNav.selectedItemId = R.id.menu_profile
                 val fragment = supportFragmentManager.findFragmentByTag(ProfileFragment.TAG)
-                //TODO fragment BaseFragment 타입 캐스팅 fetchData()
+                (fragment as? BaseFragment<*, *>)?.viewModel?.fetchData()
             }
         }
     }
