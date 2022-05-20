@@ -6,6 +6,7 @@ import aqper.side_project.aop_part5_chapter02.data.network.buildOkHttpClient
 import aqper.side_project.aop_part5_chapter02.data.network.provideGsonConverterFactory
 import aqper.side_project.aop_part5_chapter02.data.network.provideProductApiService
 import aqper.side_project.aop_part5_chapter02.data.network.provideProductRetrofit
+import aqper.side_project.aop_part5_chapter02.data.preference.PreferenceManager
 import aqper.side_project.aop_part5_chapter02.data.repository.DefaultProductRepository
 import aqper.side_project.aop_part5_chapter02.data.repository.ProductRepository
 import aqper.side_project.aop_part5_chapter02.domain.GetProductItemUseCase
@@ -17,6 +18,7 @@ import aqper.side_project.aop_part5_chapter02.presentation.main.MainViewModel
 import aqper.side_project.aop_part5_chapter02.presentation.profile.ProfileViewModel
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidApplication
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -24,7 +26,7 @@ val appModule = module {
 
     //ViewModels
     viewModel { MainViewModel() }
-    viewModel { ProfileViewModel() }
+    viewModel { ProfileViewModel(get()) }
     viewModel { ProductListViewModel(get()) }
     viewModel { (productId: Long) -> ProductDetailViewModel(productId, get(), get()) }
 
@@ -48,6 +50,8 @@ val appModule = module {
     single { provideProductRetrofit(get(), get()) }
 
     single { provideProductApiService(get()) }
+
+    single { PreferenceManager(androidContext()) }
 
     //Database
     single { provideDB(androidApplication()) }
