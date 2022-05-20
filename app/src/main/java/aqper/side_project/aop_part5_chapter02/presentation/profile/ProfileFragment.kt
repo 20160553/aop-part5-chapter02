@@ -2,19 +2,22 @@ package aqper.side_project.aop_part5_chapter02.presentation.profile
 
 import android.app.Activity
 import android.util.Log
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import aqper.side_project.aop_part5_chapter02.R
 import aqper.side_project.aop_part5_chapter02.databinding.FragmentProfileBinding
+import aqper.side_project.aop_part5_chapter02.extensions.loadCenterCrop
+import aqper.side_project.aop_part5_chapter02.extensions.toast
 import aqper.side_project.aop_part5_chapter02.presentation.BaseFragment
+import aqper.side_project.aop_part5_chapter02.presentation.detail.ProductDetailActivity
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import org.koin.android.ext.android.inject
-import java.lang.Exception
+import kotlin.Exception
 
 internal class ProfileFragment() : BaseFragment<ProfileViewModel, FragmentProfileBinding>() {
     companion object {
@@ -42,7 +45,7 @@ internal class ProfileFragment() : BaseFragment<ProfileViewModel, FragmentProfil
                 try {
                     task.getResult(ApiException::class.java)?. let { account ->
                         Log.e(TAG, "firebaseAuthWithGoogle: ${account.id}")
-                        //TODO saveToken
+                        viewModel.saveToken(account.idToken ?: throw Exception())
                     } ?: throw Exception()
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -54,9 +57,9 @@ internal class ProfileFragment() : BaseFragment<ProfileViewModel, FragmentProfil
         when (it) {
             is ProfileState.UnInitialized -> initViews()
             is ProfileState.Loading -> handleLoadingState()
-            is ProfileState.Login -> TODO()
+            is ProfileState.Login -> handleLoginState(it)
             is ProfileState.Success -> handleSuccessState(it)
-            is ProfileState.Error -> TODO()
+            is ProfileState.Error -> handleErrorState()
         }
     }
 
@@ -74,18 +77,54 @@ internal class ProfileFragment() : BaseFragment<ProfileViewModel, FragmentProfil
         loginRequiredGroup.isGone = true
     }
 
+    private fun handleLoginState(state: ProfileState.Login) = with(binding) {
+        val credential = GoogleAuthProvider.getCredential(state.idToken, null)
+        firebaseAuth.signInWithCredential(credential)
+            .addOnCompleteListener(requireActivity()) { task ->
+                if (task.isSuccessful) {
+                    val user = firebaseAuth.currentUser
+                    viewModel.setUserInfo(user)
+                } else {
+                    viewModel.setUserInfo(null)
+                }
+            }
+    }
+
     private fun handleSuccessState(state: ProfileState.Success) = with(binding) {
         progressBar.isGone = true
         when (state) {
             is ProfileState.Success.Registered -> {
-                //TODO Registered 구현
-//                handleRegisteredState(state)
+                handleRegisteredState(state)
             }
             is ProfileState.Success.NotRegistered -> {
                 profileGroup.isGone = true
                 loginRequiredGroup.isVisible = true
             }
         }
+    }
+
+    private fun handleRegisteredState(state: ProfileState.Success.Registered) = with(binding) {
+        profileGroup.isVisible = true
+        loginRequiredGroup.isGone = true
+        profileImageView.loadCenterCrop(state.profileImageUri.toString(), 60f)
+        userNameTextView.text = state.userName
+
+        if (state.productList.isEmpty()) {
+            emptyResultTextView.isGone = false
+            recyclerView.isGone = true
+        } else {
+            emptyResultTextView.isGone = true
+            recyclerView.isGone = false
+//            adapter.setProductList(state.productList) {
+//                startActivity(
+//                    ProductDetailActivity.newIntent(requireContext(), it.id)
+//                )
+//            }
+        }
+    }
+
+    private fun handleErrorState() {
+        requireContext().toast("에러가 발생했습니다.")
     }
 
     private fun signInGoogle() {
